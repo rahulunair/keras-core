@@ -39,8 +39,24 @@ def device_scope(device):
         global_state.set_global_attribute("torch_device", previous_device)
 
 
+import torch
+
 def get_default_device():
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    """Returns the default device (cpu, cuda, or xpu)"""
+    try:
+        import intel_extension_for_pytorch as ipex
+        xpu_available = ipex.is_available()
+    except ImportError:
+        xpu_available = False
+
+    if torch.cuda.is_available():
+        return "cuda"
+    elif xpu_available:
+        return "xpu"
+    else:
+        return "cpu"
+print(f">>>>>>>> Default device selected: {get_default_device()}")
+
 
 
 def get_device():
